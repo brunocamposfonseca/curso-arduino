@@ -65,8 +65,9 @@ const char* alunos[][2] = {
 
 bool status = false;
 int temp = 0;
-char accessCode[5] = "";
-//bool buttonState = false;
+char accessCode[5] = "";  // Alterado para armazenar o código de acesso como uma string C
+
+bool buttonState = false;
 
 void setup() {
   lcd.init();
@@ -80,12 +81,12 @@ void setup() {
   Serial.println("Acesso Liberado: nenhum aluno no banheiro.");
   
   pinMode(12, OUTPUT);
-  //pinMode(10, INPUT_PULLUP);
+  pinMode(10, INPUT_PULLUP);
 }
 
 void loop() {
   char key = keypad.getKey();
-  //buttonState = digitalRead(10);
+  buttonState = digitalRead(10);
 
   if (key != NO_KEY) {
     if (key == '*') {
@@ -93,7 +94,7 @@ void loop() {
         status = false;
         resetDisplay();
       } else {
-        accessCode[0] = '\0';
+        accessCode[0] = '\0';  // Resetando o código de acesso
         resetDisplay();
       }
     } else if (!status) {
@@ -104,7 +105,7 @@ void loop() {
         }
       } else {
         int len = strlen(accessCode);
-        if (len < 4) {
+        if (len < 4) {  // Evita overflow do array
           accessCode[len] = key;
           accessCode[len + 1] = '\0';
         }
@@ -131,18 +132,17 @@ void loop() {
       lcd.print(zero(minutes));
       lcd.print(":");
       lcd.print(zero(seconds));
-
-      if(temp > 20){
-        digitalWrite(12, HIGH);
-      }
+    }
+    if(temp > 20){ //alterar para 480 para cronometrar para 8 minutos
+      digitalWrite(12, HIGH);
     }
     delay(1000);
     temp += 1;
   }
 
-  //if (buttonState == LOW) {
-    //acionarBotao();
-  //}
+  if (buttonState == LOW) {
+    acionarBotao();
+  }
 }
 
 void resetDisplay() {
@@ -156,7 +156,7 @@ void resetDisplay() {
 }
 
 const char* zero(int num) {
-  static char str[3];
+  static char str[3];  // Static para manter a string fora da função
   if (num < 10) {
     sprintf(str, "0%d", num);
   } else {
@@ -193,12 +193,12 @@ void verificarAcesso(const char* code) {
   accessCode[0] = '\0';
 }
 
-//void acionarBotao() {
-  //if (status) {
-    //status = false;
-    //resetDisplay();
-    //Serial.println("Botão pressionado: Acesso resetado.");
-  //} else {
-    //Serial.println("Botão pressionado: Nenhum aluno no banheiro.");
-  //}
-//}
+void acionarBotao() {
+  if (status) {
+    status = false;
+    resetDisplay();
+    Serial.println("Botão pressionado: Acesso resetado.");
+  } else {
+    Serial.println("Botão pressionado: Nenhum aluno no banheiro.");
+  }
+}
